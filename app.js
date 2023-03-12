@@ -28,10 +28,10 @@ const donation = require("./routes/donation");
 
 const api = process.env.API_URL;
 app.use(`${api}/users`, user);
-app.use(`${api}/schedule`, schedule);
-app.use("/api/", health);
-app.use("/api/", announcement);
-app.use("/api/", applicant);
+app.use(`${api}/schedule`, schedule);  
 app.use(`${api}/donation`, donation);
+app.use(`${api}`, health);
+app.use(`${api}`, announcement);
+app.use(`${api}`, applicant);;
 
 module.exports = app;
