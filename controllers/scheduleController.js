@@ -173,7 +173,7 @@ exports.cancelActivity = async (req, res) => {
   const { id } = req.params;
 
   const schedData = await Schedule.findById({ _id: id });
-
+  const userId = schedData.user_id; 
   if (schedData.category == "Recreational Activity") {
     if (schedData.time == "am") {
       const date = schedData.date_schedule;
@@ -199,17 +199,18 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove();
-      const user_idss = req?.user._id;
+      await schedData.remove(); 
 
       const activitylogs = await ActivityLogs.create({
-        user_id: user_idss,
+        user_id: userId,
         description: "Cancel the morning recreational activity schedule",
       });
 
+      console.log(activitylogs);
       return res.status(200).json({
         success: true,
       });
+
     } else {
       const date = schedData.date_schedule;
       var yesterdate = new Date(date.setDate(date.getDate()));
@@ -234,11 +235,10 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove();
-      const user_idss = req?.user._id;
+      await schedData.remove(); 
 
       const activitylogs = await ActivityLogs.create({
-        user_id: user_idss,
+        user_id: userId,
         description: "Cancel the afternoon recreational activity schedule",
       });
 
@@ -248,11 +248,10 @@ exports.cancelActivity = async (req, res) => {
       });
     }
   } else if (schedData.category == "Multipurpose Hall") {
-    await schedData.remove();
-    const user_idss = req?.user._id;
+    await schedData.remove(); 
 
     const activitylogs = await ActivityLogs.create({
-      user_id: user_idss,
+      user_id: userId,
       description: "Cancel the multipurpose schedule",
     });
 
@@ -286,7 +285,7 @@ exports.cancelActivity = async (req, res) => {
       // console.log(updateSlot);
       await schedData.remove();
       const activitylogs = await ActivityLogs.create({
-        user_id: user_idss,
+        user_id: userId,
         description: "Cancel the morning dialysis schedule",
       });
 
@@ -316,11 +315,10 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove();
-      const user_idss = req?.user._id;
+      await schedData.remove(); 
 
       const activitylogs = await ActivityLogs.create({
-        user_id: user_idss,
+        user_id: userId,
         description: "Cancel the afternoon dialysis schedule",
       });
 

@@ -1389,7 +1389,7 @@ exports.profileEdit = catchAsyncErrors(async (req, res, next) => {
   const checkhealth_user = health_user.health_id;
 
   const activitylogs = await ActivityLogs.create({
-    user_id: user_idss,
+    user_id: id,
     description: "View the profile"
   });
 
