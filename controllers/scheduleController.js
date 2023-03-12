@@ -125,10 +125,11 @@ exports.viewActivity = async (req, res) => {
   });
 
   const activitylogs = await ActivityLogs.create({
-    user_id: user_idss,
+    user_id: schedData.user_id,
     description: "View the specific schedule",
   });
 
+  console.log(activitylogs);
   return res.status(200).json({
     success: true,
     schedData,
@@ -155,15 +156,12 @@ exports.addReview = async (req, res) => {
     }
   );
 
-  // const schedData = await Schedule.find({'_id' : id});
-  // var schedDataQr = schedData.map(function(schedDatas){return schedDatas.qr_code});
-  // var date = schedDataQr.map(function(schedDataQrss){return schedDataQrss.qr_code;});
+  const activitylogs = await ActivityLogs.create({
+    user_id: schedulesqr.user_id,
+    description: "Add review",
+  });
+  console.log(activitylogs);
 
-  // var now = new Date();
-
-  // const filter = schedDataQr.filter();
-
-  // console.log(id)
   return res.status(200).json({
     success: true,
   });
@@ -173,7 +171,7 @@ exports.cancelActivity = async (req, res) => {
   const { id } = req.params;
 
   const schedData = await Schedule.findById({ _id: id });
-  const userId = schedData.user_id; 
+  const userId = schedData.user_id;
   if (schedData.category == "Recreational Activity") {
     if (schedData.time == "am") {
       const date = schedData.date_schedule;
@@ -199,7 +197,7 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove(); 
+      await schedData.remove();
 
       const activitylogs = await ActivityLogs.create({
         user_id: userId,
@@ -210,7 +208,6 @@ exports.cancelActivity = async (req, res) => {
       return res.status(200).json({
         success: true,
       });
-
     } else {
       const date = schedData.date_schedule;
       var yesterdate = new Date(date.setDate(date.getDate()));
@@ -235,7 +232,7 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove(); 
+      await schedData.remove();
 
       const activitylogs = await ActivityLogs.create({
         user_id: userId,
@@ -248,7 +245,7 @@ exports.cancelActivity = async (req, res) => {
       });
     }
   } else if (schedData.category == "Multipurpose Hall") {
-    await schedData.remove(); 
+    await schedData.remove();
 
     const activitylogs = await ActivityLogs.create({
       user_id: userId,
@@ -315,7 +312,7 @@ exports.cancelActivity = async (req, res) => {
       );
 
       // console.log(updateSlot);
-      await schedData.remove(); 
+      await schedData.remove();
 
       const activitylogs = await ActivityLogs.create({
         user_id: userId,
@@ -849,7 +846,7 @@ exports.attendeesList = async (req, res) => {
   const user_idss = req?.user._id;
 
   const activitylogs = await ActivityLogs.create({
-    user_id: user_idss,
+    user_id: allAttendees.user_id,
     description: "View attendees",
   });
 
