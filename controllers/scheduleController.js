@@ -1,10 +1,18 @@
 const Dateslotlist = require("../models/dateslotlist");
+const User = require('../models/user')
+
 const Slot_recreational_am = require("../models/slot_recreational_am");
 const Slot_recreational_pm = require("../models/slot_recreational_pm");
+
+
+const Slot_dialysis_am = require("../models/slot_dialysis_am"); 
+const Slot_dialysis_pm = require("../models/slot_dialysis_pm"); 
+const Slot_dialysis = require('../models/slot_dialysis')
+
 const Slot_hall_am = require("../models/slot_hall_am");
 const Slot_hall_pm = require("../models/slot_hall_pm");
-const Slot_dialysis_am = require("../models/slot_dialysis_am");
-const Slot_dialysis_pm = require("../models/slot_dialysis_pm");
+
+
 const ActivityLogs = require("../models/activitylogs");
 const Schedule = require("../models/schedule");
 const qr = require("qrcode");
@@ -12,47 +20,131 @@ const cloudinary = require("cloudinary");
 const moment = require("moment");
 
 exports.schedule = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; 
 
-  const user = await Schedule.find({ user_id: id });
+	const [ userActivity, userRecreational,  userMultipurpose,  userDialysis,  slot_recreational_am,  slot_recreational_pm,  slot_dialysis_am,  slot_dialysis_pm,  slot_dialysis,  slot_hall_am,  slot_hall_pm,  slot_hall_whole,  selectedDate,  selectedSlotDate,] = await Promise.all([
+		
+		User.find({ _id: id}),
+		Schedule.find({ user_id: id, category: "Recreational Activity" }),
+		Schedule.find({ user_id: id, category: "Multipurpose Hall" }),
+		Schedule.find({ user_id: id, category: "Dialysis" }),
+		Slot_recreational_am.find(),
+		Slot_recreational_pm.find(),
+		Slot_dialysis_am.find(),
+		Slot_dialysis_pm.find(),
+		Slot_dialysis.find(),
+		Schedule.find({ time: "am", category: "Multipurpose Hall" }),
+		Schedule.find({ time: "pm", category: "Multipurpose Hall" }),
+		Schedule.find({ time: "whole_day", category: "Multipurpose Hall" }),
+		Dateslotlist.find({ date: new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString() }),
+		Dateslotlist.find({ avaliableSlot: 0 }),
+	  ]);
+	  
+	  if (selectedDate.length > 0) {
+		await Dateslotlist.findByIdAndUpdate(selectedDate[0]._id, { avaliableSlot: 0, totalSlot: 0 }, { new: true, runValidators: true, useFindAndModify: false });
+	  }
+	 
+	  const userRecreationalData = userActivity.flatMap((data) => data.requirement_id);
+	const totaluserRequirements = userRecreationalData.length;
 
-  // console.log(user);
-  const dates = await Dateslotlist.find();
-  var date = new Date();
-  var yesterdate = new Date(date.setDate(date.getDate() - 1));
-  const newSelectedDate = new Date(yesterdate).toLocaleDateString();
+	//   console.log(totaluserRequirements)
+	  
+	  const userRecreationalSched = userRecreational.map((dates) => dates.date_schedule);
+	  const userMultipurposeSched = userMultipurpose.map((dates) => dates.date_schedule);
+	  const userDialysisSched = userDialysis.map((dates) => dates.date_schedule);
+	  
+	  const userMultipurposeSchedAm = slot_hall_am.map((dates) => dates.date_schedule);
+	  const userMultipurposeSchedPm = slot_hall_pm.map((dates) => dates.date_schedule);
+	  const userMultipurposeSchedWhole = slot_hall_whole.map((dates) => dates.date_schedule);
+	  
+	  const disableDate = selectedSlotDate.map((dates) => dates.date);
+	  
+	  const DialysisbookingsThisMonth = await Schedule.countDocuments({
+		user_id: id,
+		category: "Dialysis",
+		date_schedule: {
+		  $gte: moment().startOf("month").toDate(),
+		  $lte: moment().endOf("month").toDate(),
+		},
+	  });
+	  
+	  const DialysisfutureDates = [].concat(
+		...userDialysisSched.map((date) => {
+		  const currentDate = moment(date);
+		  const range = [];
+		  for (let i = 0; i < 3; i++) {
+			range.push(currentDate.clone().add(i, "days").format("MM/DD/YYYY"));
+		  }
+		  for (let i = 0; i < 31; i++) {
+			range.push(currentDate.clone().subtract(i + 1, "days").format("MM/DD/YYYY"));
+		  }
+		  return range;
+		})
+	  );
+	// console.log()
+	return res.status(200).json({
+		success: true,
+		slot_recreational_am,
+		slot_recreational_pm,
+		slot_dialysis_am,
+		slot_dialysis_pm,
+		userMultipurposeSchedAm,
+		userMultipurposeSchedPm,
+		userMultipurposeSchedWhole,
+		disableDate,
+		userRecreationalSched,
+		userMultipurposeSched,
+		slot_dialysis,
+		userDialysisSched,
+		DialysisbookingsThisMonth,
+		DialysisfutureDates,
+		totaluserRequirements
+	  })
 
-  const selectedDate = await Dateslotlist.find({ date: newSelectedDate });
+ 
 
-  const selectedSlotDate = await Dateslotlist.find({ avaliableSlot: 0 });
+    
 
-  if (selectedDate != "") {
-    const updatedSlot = await Dateslotlist.findByIdAndUpdate(
-      selectedDate[0]._id,
-      {
-        $set: { avaliableSlot: 0, totalSlot: 0 },
-      },
-      {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-      }
-    );
-  }
-  var userSched = user.map(function (dates) {
-    return dates.date_schedule;
-  });
-  var disableDate = selectedSlotDate.map(function (dates) {
-    return dates.date;
-  });
-  console.log(userSched);
-  // console.log(disableDate);
-  return res.status(200).json({
-    success: true,
-    dates,
-    disableDate,
-    userSched,
-  });
+
+  // const user = await Schedule.find({ user_id: id });
+
+  // // console.log(user);
+  // const dates = await Dateslotlist.find();
+  // var date = new Date();
+  // var yesterdate = new Date(date.setDate(date.getDate() - 1));
+  // const newSelectedDate = new Date(yesterdate).toLocaleDateString();
+
+  // const selectedDate = await Dateslotlist.find({ date: newSelectedDate });
+
+  // const selectedSlotDate = await Dateslotlist.find({ avaliableSlot: 0 });
+
+  // if (selectedDate != "") {
+  //   const updatedSlot = await Dateslotlist.findByIdAndUpdate(
+  //     selectedDate[0]._id,
+  //     {
+  //       $set: { avaliableSlot: 0, totalSlot: 0 },
+  //     },
+  //     {
+  //       new: true,
+  //       runValidators: true,
+  //       useFindAndModify: false,
+  //     }
+  //   );
+  // }
+  // var userSched = user.map(function (dates) {
+  //   return dates.date_schedule;
+  // });
+  // var disableDate = selectedSlotDate.map(function (dates) {
+  //   return dates.date;
+  // });
+  // console.log(userSched);
+  // // console.log(disableDate);
+  // return res.status(200).json({
+  //   success: true,
+  //   dates,
+  //   disableDate,
+  //   userSched,
+  // });
 };
 
 exports.history = async (req, res) => {
