@@ -21,17 +21,17 @@ app.use(fileUpload());
 
 const user = require("./routes/user");
 const schedule = require("./routes/schedule");
-const health = require("./routes/health");
-const applicant = require("./routes/applicant");
+const health = require("./routes/health"); 
 const announcement = require("./routes/announcement");
-const donation = require("./routes/donation");
+const donation = require("./routes/donation"); 
+const notification = require('./routes/notification');
 
 const api = process.env.API_URL;
 app.use(`${api}/users`, user);
 app.use(`${api}/schedule`, schedule);  
 app.use(`${api}/donation`, donation);
 app.use(`${api}`, health);
-app.use(`${api}`, announcement);
-app.use(`${api}`, applicant);;
+app.use(`${api}`, announcement); 
+app.use(`${api}`, notification)
 
 module.exports = app;
