@@ -10,7 +10,6 @@ const ActivityLogs = require("../models/activitylogs");
 exports.allNotification = catchAsyncErrors(async (req, res, next) => {
   // const user_id = req?.User._id
   const { user_id } = req.body;
-  // const user_id  = "63c847b6766b86e98c087b64";
   const notification = await Notification.find({ user_id: user_id });
 
   const now = moment().startOf("day"); // current date without time components
