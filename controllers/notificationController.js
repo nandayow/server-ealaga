@@ -9,7 +9,8 @@ const ActivityLogs = require("../models/activitylogs");
 
 exports.allNotification = catchAsyncErrors(async(req,res,next) => {
 
-  const user_id = req?.user._id
+  // const user_id = req?.User._id
+  const { user_id } = req.params; 
   const notification = await Notification.find({user_id: user_id});
 
 
