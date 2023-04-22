@@ -9,8 +9,8 @@ const ActivityLogs = require("../models/activitylogs");
 
 exports.allNotification = catchAsyncErrors(async (req, res, next) => {
   // const user_id = req?.User._id
-  const { user_id } = req.body;
-  const notification = await Notification.find({ user_id: user_id });
+  const { id } = req.params;
+  const notification = await Notification.find({ user_id: id });
 
   const now = moment().startOf("day"); // current date without time components
   const tomorrow = moment().endOf("day").add(1, "day"); // tomorrow's date without time components
@@ -67,7 +67,7 @@ exports.allNotification = catchAsyncErrors(async (req, res, next) => {
   }
 
   const all_read = await Notification.find({
-    user_id: user_id,
+    user_id: id,
     all_read: false,
   });
 
