@@ -77,11 +77,12 @@ exports.allNotification = catchAsyncErrors(async (req, res, next) => {
 });
 
 exports.updateLength = catchAsyncErrors(async (req, res, next) => {
-    // const user_id = req?.user._id;
-  const { user_id } = req.params;
+   
+  const { id } = req.params;
+  console.log(id);
 
   const updatedNotifications = await Notification.updateMany(
-    { user_id }, // Query to find notifications with matching user_id
+    { user_id: id }, // Query to find notifications with matching user_id
     { all_read: true } // Update to set all_read to true
   );
 
