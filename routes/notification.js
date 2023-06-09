@@ -5,7 +5,7 @@ const {allNotification, updateLength, updateSpecificNotif, newNotification } = r
 const { protect } = require("../middlewares/authMiddleware");
 
 router.route('/allNotification/:id').get(allNotification);
-router.route('/notification/updateLength').post(updateLength);
+router.route("/notification/updateLength/:id").post(updateLength); 
 router.route('/notification/updateNotif/:id').put(updateSpecificNotif);
 router.route('/notification/new').post(newNotification);
 
